@@ -5,7 +5,33 @@ import java.sql.SQLException;
 
 public class Main {
     public static void main(String[] args) {
-/*
+
+        // Obtener el chiste de Chuck Norris
+        String jokeInEnglish = "";
+        String jokeInSpanish = "";
+        try {
+            // Usamos ChuckNorrisAdapter para obtener el chiste en inglés
+            JokeService jokeService = new ChuckNorrisAdapter();
+            String joke = jokeService.getJoke();  // Obtiene el chiste en inglés y lo traduce a español
+
+            // Separamos el chiste en inglés y en español
+            String[] jokes = joke.split("\n");  // Separamos por nueva línea
+            jokeInEnglish = jokes[0].replace("Inglés: ", "").trim();
+            jokeInSpanish = jokes[1].replace("Español: ", "").trim();
+
+            // Imprime el chiste en ambos idiomas
+            System.out.println("Chiste en Inglés: " + jokeInEnglish);
+            System.out.println("Chiste en Español: " + jokeInSpanish);
+
+        } catch (Exception e) {
+            System.out.println("Error al obtener o traducir el chiste: " + e.getMessage());
+            return;  // Salir si hay error al obtener el chiste
+        }
+
+        // Escapar las comillas simples para evitar errores en SQL
+        jokeInEnglish = escapeSingleQuotes(jokeInEnglish);
+        jokeInSpanish = escapeSingleQuotes(jokeInSpanish);
+
         // Conexión a SQLite con Factory
         DatabaseFactory sqliteFactory = new SQLiteFactory();
         Database sqliteDb = sqliteFactory.createDatabase("jdbc:sqlite:baseproduccion.db");
@@ -13,13 +39,21 @@ public class Main {
         try (Connection conn = sqliteDb.connect();
              Statement stmt = conn.createStatement()) {
 
-            stmt.execute("CREATE TABLE IF NOT EXISTS usuarios (id INTEGER PRIMARY KEY, nombre TEXT)");
-            stmt.execute("INSERT OR REPLACE INTO usuarios (id, nombre) VALUES (67001155, 'Alexis')");
-            ResultSet rs = stmt.executeQuery("SELECT * FROM usuarios");
+            stmt.execute("CREATE TABLE IF NOT EXISTS ChistesChabes (" +
+                    "AUTOID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "chiste_en_ingles TEXT, " +
+                    "chiste_en_espanol TEXT)");
+
+            // Insertar el chiste obtenido de Chuck Norris sin especificar AUTOID
+            stmt.execute("INSERT INTO ChistesChabes (chiste_en_ingles, chiste_en_espanol) " +
+                    "VALUES ('" + jokeInEnglish + "', '" + jokeInSpanish + "')");
+
+            ResultSet rs = stmt.executeQuery("SELECT * FROM ChistesChabes");
 
             System.out.println("Datos desde SQLite:");
             while (rs.next()) {
-                System.out.println(rs.getInt("id") + " - " + rs.getString("nombre"));
+                System.out.println(rs.getInt("AUTOID") + " - Inglés: " + rs.getString("chiste_en_ingles") +
+                        " | Español: " + rs.getString("chiste_en_espanol"));
             }
 
         } catch (SQLException e) {
@@ -33,21 +67,30 @@ public class Main {
         try (Connection conn = mysqlDb.connect();
              Statement stmt = conn.createStatement()) {
 
-            stmt.execute("CREATE TABLE IF NOT EXISTS usuarios (id INT PRIMARY KEY, nombre VARCHAR(100))");
-            stmt.execute("INSERT INTO usuarios (id, nombre) VALUES (67001155, 'Alexis') " +
-                    "ON DUPLICATE KEY UPDATE nombre = VALUES(nombre)");
+            // Crear la tabla correctamente
+            stmt.execute("CREATE TABLE IF NOT EXISTS ChistesChabes (" +
+                    "AUTOID INT AUTO_INCREMENT PRIMARY KEY, " +
+                    "chiste_en_ingles TEXT, " +
+                    "chiste_en_espanol TEXT)");
 
-            ResultSet rs = stmt.executeQuery("SELECT * FROM usuarios");
+            // Insertar el chiste obtenido de Chuck Norris sin especificar AUTOID
+            stmt.execute("INSERT INTO ChistesChabes (chiste_en_ingles, chiste_en_espanol) " +
+                    "VALUES ('" + jokeInEnglish + "', '" + jokeInSpanish + "')");
+
+            // Consultar y mostrar los datos
+            ResultSet rs = stmt.executeQuery("SELECT * FROM ChistesChabes");
 
             System.out.println("Datos desde MySQL:");
             while (rs.next()) {
-                System.out.println(rs.getInt("id") + " - " + rs.getString("nombre"));
+                System.out.println(rs.getInt("AUTOID") + " - Inglés: " + rs.getString("chiste_en_ingles") +
+                        " | Español: " + rs.getString("chiste_en_espanol"));
             }
 
         } catch (SQLException e) {
             System.out.println("Error MySQL: " + e.getMessage());
         }
-*/
+
+
         // Conexión a PostgreSQL con Factory
         DatabaseFactory postgresFactory = new PostgresFactory();
         Database postgresDb = postgresFactory.createDatabase("jdbc:postgresql://172.30.16.248:5432/construccion1");
@@ -55,30 +98,34 @@ public class Main {
         try (Connection conn = postgresDb.connect();
              Statement stmt = conn.createStatement()) {
 
-            stmt.execute("CREATE TABLE IF NOT EXISTS usuarios (id SERIAL PRIMARY KEY, nombre VARCHAR(100))");
-            stmt.execute("INSERT INTO usuarios (id, nombre) VALUES (67001153, 'Chabes') " +
-                    "ON CONFLICT (id) DO UPDATE SET nombre='Andres'");
-            ResultSet rs = stmt.executeQuery("SELECT * FROM usuarios");
+            stmt.execute("CREATE TABLE IF NOT EXISTS ChistesChabes (" +
+                    "AUTOID SERIAL PRIMARY KEY, " +
+                    "chiste_en_ingles TEXT, " +
+                    "chiste_en_espanol TEXT)");
+
+            // Insertar el chiste obtenido de Chuck Norris
+            stmt.execute("INSERT INTO ChistesChabes (chiste_en_ingles, chiste_en_espanol) " +
+                    "VALUES ('" + jokeInEnglish + "', '" + jokeInSpanish + "') " +
+                    "ON CONFLICT (AUTOID) DO UPDATE SET chiste_en_ingles = EXCLUDED.chiste_en_ingles, chiste_en_espanol = EXCLUDED.chiste_en_espanol");
+
+            ResultSet rs = stmt.executeQuery("SELECT * FROM ChistesChabes");
 
             System.out.println("Datos desde PostgreSQL:");
             while (rs.next()) {
-                System.out.println(rs.getInt("id") + " - " + rs.getString("nombre"));
+                System.out.println(rs.getInt("AUTOID") + " - Inglés: " + rs.getString("chiste_en_ingles") +
+                        " | Español: " + rs.getString("chiste_en_espanol"));
             }
 
         } catch (SQLException e) {
             System.out.println("Error PostgreSQL: " + e.getMessage());
-     
         }
-        try {
-            // Usamos ChuckNorrisAdapter para obtener el chiste y traducirlo
-            JokeService jokeService = new ChuckNorrisAdapter();
-            String joke = jokeService.getJoke();  // Obtiene el chiste tanto en inglés como en español
+    }
 
-            // Imprime el chiste en ambos idiomas
-            System.out.println(joke);
-
-        } catch (Exception e) {
-            System.out.println("Error al obtener o traducir el chiste: " + e.getMessage());
+    // Método para escapar las comillas simples en las cadenas
+    private static String escapeSingleQuotes(String str) {
+        if (str != null) {
+            return str.replace("'", "''");
         }
+        return str;
     }
 }

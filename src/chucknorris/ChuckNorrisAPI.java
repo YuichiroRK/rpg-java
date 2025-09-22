@@ -22,7 +22,8 @@ public class ChuckNorrisAPI {
 
             return response.toString(); // JSON completo
         } catch (Exception e) {
-            return "Error: " + e.getMessage();
+            // Manejar error en la conexión o al obtener el chiste
+            return "Error al obtener el chiste de Chuck Norris: " + e.getMessage();
         }
     }
 }

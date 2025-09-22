@@ -1,4 +1,8 @@
 import org.json.JSONObject;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class ChuckNorrisAdapter implements JokeService {
     private ChuckNorrisAPI api;
@@ -20,10 +24,11 @@ public class ChuckNorrisAdapter implements JokeService {
             String jokeInSpanish = translator.getJoke();
 
             // Devolver el chiste en ambos idiomas (inglés y español)
-            return "Inglés: " + jokeInEnglish + "\nEspañol: " + jokeInSpanish;
+            return String.format("Inglés: %s\nEspañol: %s", jokeInEnglish, jokeInSpanish);
 
         } catch (Exception e) {
-            return "Error procesando el chiste o traduciendo: " + e.getMessage();
+            // Especificar el tipo de error (ya sea al obtener el chiste o traducir)
+            return "Error al procesar el chiste o traducir: " + e.getMessage();
         }
     }
 }
