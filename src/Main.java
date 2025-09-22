@@ -67,6 +67,18 @@ public class Main {
 
         } catch (SQLException e) {
             System.out.println("Error PostgreSQL: " + e.getMessage());
+     
+        }
+        try {
+            // Usamos ChuckNorrisAdapter para obtener el chiste y traducirlo
+            JokeService jokeService = new ChuckNorrisAdapter();
+            String joke = jokeService.getJoke();  // Obtiene el chiste tanto en inglés como en español
+
+            // Imprime el chiste en ambos idiomas
+            System.out.println(joke);
+
+        } catch (Exception e) {
+            System.out.println("Error al obtener o traducir el chiste: " + e.getMessage());
         }
     }
 }

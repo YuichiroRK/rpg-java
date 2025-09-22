@@ -1,5 +1,4 @@
-// Adapter: traduce la API externa a nuestra interfaz JokeService
-import org.json.JSONObject; //descargar json-20230618.jar
+import org.json.JSONObject;
 
 public class ChuckNorrisAdapter implements JokeService {
     private ChuckNorrisAPI api;
@@ -12,10 +11,19 @@ public class ChuckNorrisAdapter implements JokeService {
     public String getJoke() {
         String json = api.fetchJoke();
         try {
+            // Obtener el chiste en inglés de la respuesta JSON
             JSONObject obj = new JSONObject(json);
-            return obj.getString("value"); // campo "value" trae el chiste
+            String jokeInEnglish = obj.getString("value");
+
+            // Traducir el chiste a español utilizando MyMemoryTraductor
+            MyMemoryTraductor translator = new MyMemoryTraductor(jokeInEnglish, "en", "es");
+            String jokeInSpanish = translator.getJoke();
+
+            // Devolver el chiste en ambos idiomas (inglés y español)
+            return "Inglés: " + jokeInEnglish + "\nEspañol: " + jokeInSpanish;
+
         } catch (Exception e) {
-            return "Error procesando JSON: " + e.getMessage();
+            return "Error procesando el chiste o traduciendo: " + e.getMessage();
         }
     }
 }
