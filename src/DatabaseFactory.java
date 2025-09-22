@@ -1,3 +1,5 @@
 public abstract class DatabaseFactory {
-    public abstract Database createDatabase();
-}
+    public abstract Database createDatabase(String url);
+
+    }
+

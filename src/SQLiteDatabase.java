@@ -3,7 +3,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class SQLiteDatabase implements Database {
-
     private String url;
 
     public SQLiteDatabase(String url) {
@@ -14,10 +13,10 @@ public class SQLiteDatabase implements Database {
     public Connection connect() {
         try {
             Connection conn = DriverManager.getConnection(url);
-            System.out.println("Conectado a la base de datos SQLite");
+            System.out.println("\n Conexión exitosa con SQLite. \n");
             return conn;
         } catch (SQLException e) {
-            System.out.println("Error al conectar: " + e.getMessage());
+            System.err.println("Error al conectar a SQLite: " + e.getMessage());
             return null;
         }
     }

@@ -1,13 +1,6 @@
 public class SQLiteFactory extends DatabaseFactory {
-
-    private String url;
-
-    public SQLiteFactory(String filePath) {
-        this.url = "jdbc:sqlite:" + filePath;
-    }
-
     @Override
-    public Database createDatabase() {
+    public Database createDatabase(String url) {
         return new SQLiteDatabase(url);
     }
 }
