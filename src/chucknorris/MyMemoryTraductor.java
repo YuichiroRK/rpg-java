@@ -1,8 +1,11 @@
+package chucknorris;
+
 import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 
 public class MyMemoryTraductor implements JokeService {
 
@@ -42,4 +45,5 @@ public class MyMemoryTraductor implements JokeService {
             return "Error al traducir con MyMemory: " + e.getMessage();
         }
     }
+
 }

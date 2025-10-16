@@ -1,3 +1,7 @@
+package chucknorris;
+
+import java.util.List;
+
 // Implementación local (sin API) para pruebas
 public class LocalJokeService implements JokeService {
     @Override

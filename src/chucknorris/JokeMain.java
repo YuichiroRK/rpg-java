@@ -1,3 +1,7 @@
+package chucknorris;
+
+import chucknorris.ChuckNorrisAdapter;
+
 public class JokeMain {
     public static void main(String[] args) {
         // Usamos el adaptador para obtener el chiste traducido

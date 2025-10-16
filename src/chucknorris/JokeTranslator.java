@@ -1,3 +1,4 @@
+package chucknorris;
 public class JokeTranslator {
 
     // API de Chuck Norris

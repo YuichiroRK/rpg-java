@@ -1,9 +1,13 @@
 // API externa simulada con HTTP GET
 // Usaremos java.net.HttpURLConnection para no depender de librerías adicionales
+package chucknorris;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.sql.DatabaseMetaData;
+
 
 public class ChuckNorrisAPI {
     public String fetchJoke() {

@@ -1,4 +1,6 @@
-// Interfaz que la aplicación espera usar
+package chucknorris;
+import java.util.List;
+
 public interface JokeService {
     String getJoke();
 }
