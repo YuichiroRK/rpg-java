@@ -38,7 +38,7 @@ public class Main {
 
         // Conexión a MySQL con Factory
         DatabaseFactory mysqlFactory = new MySQLFactory();
-        Database mysqlDb = mysqlFactory.createDatabase("jdbc:mysql://172.30.16.44:3306/construccion1");
+        Database mysqlDb = mysqlFactory.createDatabase("jdbc:mysql://172.30.16.154:3306/construccion1");
 
         try (Connection conn = mysqlDb.connect();
              Statement stmt = conn.createStatement()) {
@@ -73,7 +73,7 @@ public class Main {
 
         // Conexión a PostgreSQL con Factory
         DatabaseFactory postgresFactory = new PostgresFactory();
-        Database postgresDb = postgresFactory.createDatabase("jdbc:postgresql://172.30.16.45:5432/construccion1");
+        Database postgresDb = postgresFactory.createDatabase("jdbc:postgresql://172.30.16.157:5432/construccion1");
 
         try (Connection conn = postgresDb.connect();
              Statement stmt = conn.createStatement()) {

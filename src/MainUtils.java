@@ -17,18 +17,18 @@ public class MainUtils {
         Stage ventana = new Stage();
         ventana.setTitle(titulo);
 
-        TableView<Chiste> tabla = new TableView<>();
+        TableView<Chistes> tabla = new TableView<>();
 
         // Columnas
-        TableColumn<Chiste, Integer> idCol = new TableColumn<>("ID");
+        TableColumn<Chistes, Integer> idCol = new TableColumn<>("ID");
         idCol.setCellValueFactory(data -> data.getValue().idProperty().asObject());
         idCol.setPrefWidth(60);
 
-        TableColumn<Chiste, String> enCol = new TableColumn<>("Chiste en Inglés");
+        TableColumn<Chistes, String> enCol = new TableColumn<>("Chiste en Inglés");
         enCol.setCellValueFactory(data -> data.getValue().englishProperty());
         enCol.setPrefWidth(320);
 
-        TableColumn<Chiste, String> esCol = new TableColumn<>("Chiste en Español");
+        TableColumn<Chistes, String> esCol = new TableColumn<>("Chiste en Español");
         esCol.setCellValueFactory(data -> data.getValue().spanishProperty());
         esCol.setPrefWidth(320);
 
@@ -58,15 +58,15 @@ public class MainUtils {
     }
 
     // ✅ Método público para obtener chistes desde una base de datos
-    public static List<Chiste> obtenerChistes(Database database, String query) {
-        List<Chiste> chistes = new ArrayList<>();
+    public static List<Chistes> obtenerChistes(Database database, String query) {
+        List<Chistes> chistes = new ArrayList<>();
 
         try (Connection conn = database.connect();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
-                chistes.add(new Chiste(
+                chistes.add(new Chistes(
                         rs.getInt("AUTOID"),
                         rs.getString("chiste_en_ingles"),
                         rs.getString("chiste_en_espanol")
