@@ -13,6 +13,13 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Pair;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableRow;
+
 
 import java.sql.*;
 
@@ -23,8 +30,25 @@ public class MainFX extends Application {
     private ProgressBar postgresProgress = new ProgressBar(0);
     private TextArea jokeArea = new TextArea();
 
+    // 👉 NUEVAS VARIABLES
+    private String mysqlIP;
+    private String postgresIP;
+
     @Override
     public void start(Stage stage) {
+        // === Pedir IPs al iniciar la app ===
+        TextInputDialog mysqlDialog = new TextInputDialog("172.30.16.154");
+        mysqlDialog.setTitle("Configuración de conexión");
+        mysqlDialog.setHeaderText("Ingrese la IP del servidor MySQL");
+        mysqlDialog.setContentText("IP MySQL:");
+        mysqlIP = mysqlDialog.showAndWait().orElse("");
+
+        TextInputDialog postgresDialog = new TextInputDialog("172.30.16.157");
+        postgresDialog.setTitle("Configuración de conexión");
+        postgresDialog.setHeaderText("Ingrese la IP del servidor PostgreSQL");
+        postgresDialog.setContentText("IP PostgreSQL:");
+        postgresIP = postgresDialog.showAndWait().orElse("");
+
         Label title = new Label("💾 Gestor de Chistes Chuck Norris");
         title.setFont(new Font("Segoe UI Semibold", 24));
         title.setTextFill(Color.web("#00D4FF"));
@@ -134,11 +158,12 @@ public class MainFX extends Application {
                 createTable(sqliteDb);
                 updateProgress(0.2, 1);
 
-                Database mysqlDb = new MySQLFactory().createDatabase("jdbc:mysql://172.30.16.154:3306/construccion1");
+                // 👉 Usa las IP ingresadas
+                Database mysqlDb = new MySQLFactory().createDatabase("jdbc:mysql://" + mysqlIP + ":3306/construccion1");
                 createTable(mysqlDb);
                 updateProgress(0.4, 1);
 
-                Database postgresDb = new PostgresFactory().createDatabase("jdbc:postgresql://172.30.16.157:5432/construccion1");
+                Database postgresDb = new PostgresFactory().createDatabase("jdbc:postgresql://" + postgresIP + ":5432/construccion1");
                 createTable(postgresDb);
                 updateProgress(0.6, 1);
 
@@ -202,8 +227,8 @@ public class MainFX extends Application {
 
         switch (tipoBD) {
             case "SQLite" -> db = new SQLiteFactory().createDatabase("jdbc:sqlite:baseproduccion.db");
-            case "MySQL" -> db = new MySQLFactory().createDatabase("jdbc:mysql://172.30.16.157:3306/construccion1");
-            case "PostgreSQL" -> db = new PostgresFactory().createDatabase("jdbc:postgresql://172.30.16.157:5432/construccion1");
+            case "MySQL" -> db = new MySQLFactory().createDatabase("jdbc:mysql://" + mysqlIP + ":3306/construccion1");
+            case "PostgreSQL" -> db = new PostgresFactory().createDatabase("jdbc:postgresql://" + postgresIP + ":5432/construccion1");
             default -> {
                 System.out.println("Tipo de BD no reconocido");
                 return;
@@ -212,15 +237,31 @@ public class MainFX extends Application {
 
         Stage stage = new Stage();
         TableView<Chistes> tableView = new TableView<>();
+        tableView.setEditable(true); // ✅ Habilita edición
 
         TableColumn<Chistes, Integer> colId = new TableColumn<>("ID");
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colId.setEditable(false);
 
         TableColumn<Chistes, String> colIngles = new TableColumn<>("Chiste en Inglés");
         colIngles.setCellValueFactory(new PropertyValueFactory<>("chisteEnIngles"));
+        colIngles.setCellFactory(TextFieldTableCell.forTableColumn()); // ✅ Editable
+        colIngles.setOnEditCommit(event -> {
+            Chistes chiste = event.getRowValue();
+            String nuevoValor = event.getNewValue();
+            chiste.setChisteEnIngles(nuevoValor);
+            actualizarCampo(db, chiste.getId(), "chiste_en_ingles", nuevoValor);
+        });
 
         TableColumn<Chistes, String> colEspanol = new TableColumn<>("Chiste en Español");
         colEspanol.setCellValueFactory(new PropertyValueFactory<>("chisteEnEspanol"));
+        colEspanol.setCellFactory(TextFieldTableCell.forTableColumn()); // ✅ Editable
+        colEspanol.setOnEditCommit(event -> {
+            Chistes chiste = event.getRowValue();
+            String nuevoValor = event.getNewValue();
+            chiste.setChisteEnEspanol(nuevoValor);
+            actualizarCampo(db, chiste.getId(), "chiste_en_espanol", nuevoValor);
+        });
 
         tableView.getColumns().addAll(colId, colIngles, colEspanol);
 
@@ -241,13 +282,36 @@ public class MainFX extends Application {
         }
         tableView.setItems(data);
 
-        Button btnEditar = new Button("✏️ Editar");
-        Button btnEliminar = new Button("🗑️ Eliminar");
+        tableView.setRowFactory(tv -> {
+            TableRow<Chistes> fila = new TableRow<>();
 
-        btnEditar.setOnAction(e -> editarChiste(db, tableView));
+            fila.setOnMouseClicked(event -> {
+                if (!fila.isEmpty() && event.getButton() == MouseButton.SECONDARY) { // clic derecho
+                    ContextMenu menu = new ContextMenu();
+
+                    MenuItem editarItem = new MenuItem("✏️ Editar chiste");
+                    MenuItem eliminarItem = new MenuItem("🗑️ Eliminar chiste");
+
+                    editarItem.setOnAction(e -> editarChiste(db, tableView));
+                    eliminarItem.setOnAction(e -> eliminarChiste(db, tableView));
+
+                    menu.getItems().addAll(editarItem, eliminarItem);
+                    menu.show(fila, event.getScreenX(), event.getScreenY());
+                }
+            });
+
+            return fila;
+        });
+
+        tableView.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.DELETE) {
+                eliminarChiste(db, tableView);
+            }
+        });
+        Button btnEliminar = new Button("🗑️ Eliminar");
         btnEliminar.setOnAction(e -> eliminarChiste(db, tableView));
 
-        HBox botones = new HBox(15, btnEditar, btnEliminar);
+        HBox botones = new HBox(15, btnEliminar);
         botones.setAlignment(Pos.CENTER);
         botones.setPadding(new Insets(10));
 
@@ -260,6 +324,8 @@ public class MainFX extends Application {
         stage.setTitle("📚 Chistes " + tipoBD);
         stage.show();
     }
+
+
 
     private void editarChiste(Database db, TableView<Chistes> tableView) {
         Chistes seleccionado = tableView.getSelectionModel().getSelectedItem();
@@ -341,6 +407,19 @@ public class MainFX extends Application {
             }
         }
     }
+    private void actualizarCampo(Database db, int id, String campo, String nuevoValor) {
+        String sql = "UPDATE ChistesChabes SET " + campo + " = ? WHERE AUTOID = ?";
+        try (Connection conn = db.connect();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, nuevoValor);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mostrarAlerta("Error al actualizar el campo " + campo, Alert.AlertType.ERROR);
+        }
+    }
+
 
     private void mostrarAlerta(String msg, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo, msg, ButtonType.OK);
