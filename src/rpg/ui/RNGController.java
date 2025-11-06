@@ -59,19 +59,27 @@ public class RNGController {
         btnVerCatalogo.setStyle("-fx-font-size: 14px;");
         btnVerCatalogo.setOnAction(e -> showCatalog());
 
-        VBox box = new VBox(20, title, btnObtener, btnVerInventario, btnVerCatalogo, lblResultado);
+        Button btnAgregarCarta = new Button("➕ Agregar carta");
+        btnAgregarCarta.setStyle("-fx-font-size: 14px;");
+        btnAgregarCarta.setOnAction(e -> new CardEditorView(repository).show());
+
+        VBox box = new VBox(20, title, btnObtener, btnVerInventario, btnVerCatalogo, btnAgregarCarta, lblResultado);
         box.setStyle("-fx-alignment: center; -fx-padding: 40px; -fx-background-color: #202020;");
         return box;
     }
 
     private void drawCard() {
         Card card = rngSystem.drawCard();
-        repository.saveToCatalog(card);      // guarda en el catálogo global
-        repository.saveCardForPlayer(card);  // guarda en inventario del jugador
+        repository.saveToCatalog(card);
+        repository.saveCardForPlayer(card);
 
-        lblResultado.setText("Has obtenido: " + card.getName() +
-                "\nRareza: " + card.getRarity() +
+        String color = card.getRarity().getColorHex();
+        String symbol = card.getRarity().getSymbol();
+
+        lblResultado.setText(symbol + " Has obtenido: " + card.getName() +
+                "\nRareza: " + card.getRarity().name() +
                 "\nPoder: " + card.getPower());
+        lblResultado.setStyle("-fx-text-fill: " + color + "; -fx-font-size: 14px;");
     }
 
     // 📜 Mostrar cartas del jugador

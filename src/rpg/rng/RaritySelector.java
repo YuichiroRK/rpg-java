@@ -1,19 +1,29 @@
 package rpg.rng;
 
 import rpg.model.Rarity;
+import java.util.*;
 
 public class RaritySelector {
     private final RandomNumberGenerator rng;
+    private final List<Rarity> rarities;
+    private final double totalWeight;
 
     public RaritySelector(RandomNumberGenerator rng) {
         this.rng = rng;
+        this.rarities = Arrays.asList(Rarity.values());
+        this.totalWeight = rarities.stream().mapToDouble(Rarity::getWeight).sum();
     }
 
     public Rarity selectRarity() {
-        int roll = rng.getRandomInt(1, 100);
-        if (roll <= 70) return Rarity.COMMON;
-        if (roll <= 90) return Rarity.RARE;
-        if (roll <= 98) return Rarity.EPIC;
-        return Rarity.LEGENDARY;
+        double roll = rng.nextDouble() * totalWeight;
+        double cumulative = 0;
+
+        for (Rarity rarity : rarities) {
+            cumulative += rarity.getWeight();
+            if (roll <= cumulative) {
+                return rarity;
+            }
+        }
+        return Rarity.COMMON;
     }
 }

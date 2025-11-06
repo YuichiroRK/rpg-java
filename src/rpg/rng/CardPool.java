@@ -1,22 +1,31 @@
 package rpg.rng;
 
-import rpg.model.*;
+import rpg.model.Card;
+import rpg.model.Rarity;
 import java.util.*;
 
 public class CardPool {
-    private final List<Card> cards = new ArrayList<>();
+    private final Map<Rarity, List<Card>> cardsByRarity = new HashMap<>();
 
     public CardPool() {
-        cards.add(new Card("Fire Knight", Rarity.COMMON, 30));
-        cards.add(new Card("Water Mage", Rarity.COMMON, 28));
-        cards.add(new Card("Earth Guardian", Rarity.RARE, 45));
-        cards.add(new Card("Storm Dragon", Rarity.EPIC, 70));
-        cards.add(new Card("Celestial Phoenix", Rarity.LEGENDARY, 100));
+        for (Rarity rarity : Rarity.values()) {
+            cardsByRarity.put(rarity, new ArrayList<>());
+        }
+
+        // Ejemplos (puedes reemplazar por tus propias cartas)
+        cardsByRarity.get(Rarity.COMMON).add(new Card("Forest Sprite", Rarity.COMMON, 20));
+        cardsByRarity.get(Rarity.UNCOMMON).add(new Card("Bronze Guardian", Rarity.UNCOMMON, 60));
+        cardsByRarity.get(Rarity.RARE).add(new Card("Abyss Mage", Rarity.RARE, 100));
+        cardsByRarity.get(Rarity.EPIC).add(new Card("Crimson Knight", Rarity.EPIC, 150));
+        cardsByRarity.get(Rarity.LEGENDARY).add(new Card("Celestial Dragon", Rarity.LEGENDARY, 220));
+        cardsByRarity.get(Rarity.MYTHIC).add(new Card("Soul Reaver", Rarity.MYTHIC, 300));
+        cardsByRarity.get(Rarity.ANCIENT).add(new Card("Time Weaver", Rarity.ANCIENT, 450));
+        cardsByRarity.get(Rarity.DIVINE).add(new Card("Aether Seraph", Rarity.DIVINE, 600));
+        cardsByRarity.get(Rarity.SECRET).add(new Card("Chrono Demon", Rarity.SECRET, 900));
+        cardsByRarity.get(Rarity.ULTIMATE).add(new Card("Oblivion Monarch", Rarity.ULTIMATE, 1300));
     }
 
     public List<Card> getCardsByRarity(Rarity rarity) {
-        return cards.stream()
-                .filter(c -> c.getRarity() == rarity)
-                .toList();
+        return cardsByRarity.getOrDefault(rarity, new ArrayList<>());
     }
 }
