@@ -1,3 +1,5 @@
+package database;
+
 public class PostgresFactory extends DatabaseFactory {
     @Override
     public Database createDatabase(String url) {

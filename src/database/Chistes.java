@@ -1,3 +1,5 @@
+package database;
+
 import javafx.beans.property.*;
 
 public class Chistes {

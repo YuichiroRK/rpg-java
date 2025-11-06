@@ -1,3 +1,5 @@
+package database;
+
 import chucknorris.ChuckNorrisAdapter;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -24,7 +26,8 @@ import javafx.scene.control.TableRow;
 import java.sql.*;
 
 public class MainFX extends Application {
-
+    private final String USER = "u67001153";
+    private final String PASS = "12345";
     private ProgressBar sqliteProgress = new ProgressBar(0);
     private ProgressBar mysqlProgress = new ProgressBar(0);
     private ProgressBar postgresProgress = new ProgressBar(0);
@@ -49,7 +52,7 @@ public class MainFX extends Application {
         postgresDialog.setContentText("IP PostgreSQL:");
         postgresIP = postgresDialog.showAndWait().orElse("");
 
-        Label title = new Label("💾 Gestor de Chistes Chuck Norris");
+        Label title = new Label("💾 Gestor de database.Chistes Chuck Norris");
         title.setFont(new Font("Segoe UI Semibold", 24));
         title.setTextFill(Color.web("#00D4FF"));
 
@@ -71,9 +74,9 @@ public class MainFX extends Application {
         btnConnect.setStyle("-fx-background-color: #00D4FF; -fx-text-fill: black; -fx-font-weight: bold; -fx-background-radius: 10;");
         btnConnect.setOnAction(e -> connectAndInsert());
 
-        Button btnSQLite = crearBotonBD("🟣 Chistes SQLite");
-        Button btnMySQL = crearBotonBD("🟠 Chistes MySQL");
-        Button btnPostgres = crearBotonBD("🟢 Chistes PostgreSQL");
+        Button btnSQLite = crearBotonBD("🟣 database.Chistes SQLite");
+        Button btnMySQL = crearBotonBD("🟠 database.Chistes MySQL");
+        Button btnPostgres = crearBotonBD("🟢 database.Chistes PostgreSQL");
 
         btnSQLite.setOnAction(e -> abrirVentanaChistes("SQLite"));
         btnMySQL.setOnAction(e -> abrirVentanaChistes("MySQL"));
@@ -154,16 +157,24 @@ public class MainFX extends Application {
             protected Void call() throws Exception {
                 updateProgress(0, 1);
 
+                // === SQLite ===
                 Database sqliteDb = new SQLiteFactory().createDatabase("jdbc:sqlite:baseproduccion.db");
                 createTable(sqliteDb);
                 updateProgress(0.2, 1);
 
-                // 👉 Usa las IP ingresadas
-                Database mysqlDb = new MySQLFactory().createDatabase("jdbc:mysql://" + mysqlIP + ":3306/construccion1");
+                // === MySQL ===
+                crearBaseSiNoExiste("mysql", mysqlIP);
+                Database mysqlDb = new MySQLFactory().createDatabase(
+                        "jdbc:mysql://" + mysqlIP + ":3306/Chabes?user=" + USER + "&password=" + PASS
+                );
                 createTable(mysqlDb);
                 updateProgress(0.4, 1);
 
-                Database postgresDb = new PostgresFactory().createDatabase("jdbc:postgresql://" + postgresIP + ":5432/construccion1");
+                // === PostgreSQL ===
+                crearBaseSiNoExiste("postgresql", postgresIP);
+                Database postgresDb = new PostgresFactory().createDatabase(
+                        "jdbc:postgresql://" + postgresIP + ":5432/construccion1?user=postgres&password=12345"
+                );
                 createTable(postgresDb);
                 updateProgress(0.6, 1);
 
@@ -204,6 +215,42 @@ public class MainFX extends Application {
         }
     }
 
+    private boolean crearBaseSiNoExiste(String tipo, String ip) {
+        String urlAdmin;
+        try {
+            if (tipo.equalsIgnoreCase("postgresql")) {
+                urlAdmin = "jdbc:postgresql://" + ip + ":5432/postgres";
+                try (Connection conn = DriverManager.getConnection(urlAdmin, "postgres", "12345");
+                     Statement stmt = conn.createStatement()) {
+
+                    // 🔍 Comprobamos si existe la base
+                    ResultSet rs = stmt.executeQuery("SELECT 1 FROM pg_database WHERE datname = 'Chabes'");
+                    if (!rs.next()) {
+                        System.out.println("🛠 Creando base de datos 'Chabes' en PostgreSQL...");
+                        stmt.executeUpdate("CREATE DATABASE \"Chabes\"");
+                        System.out.println("✅ Base de datos 'Chabes' creada correctamente.");
+                    } else {
+                        System.out.println("ℹ️ La base de datos 'Chabes' ya existe en PostgreSQL.");
+                    }
+                    return true;
+                }
+            }
+            else if (tipo.equalsIgnoreCase("mysql")) {
+                urlAdmin = "jdbc:mysql://" + ip + ":3306/";
+                try (Connection conn = DriverManager.getConnection(urlAdmin, "u67001153", "12345");
+                     Statement stmt = conn.createStatement()) {
+                    stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS Chabes");
+                    System.out.println("✅ Base de datos 'Chabes' creada o ya existente en MySQL.");
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("⚠️ Error creando base " + tipo + ": " + e.getMessage());
+        }
+        return false;
+    }
+
+
     private void insertJoke(Database db, String joke) {
         try (Connection conn = db.connect();
              Statement stmt = conn.createStatement()) {
@@ -227,7 +274,7 @@ public class MainFX extends Application {
 
         switch (tipoBD) {
             case "SQLite" -> db = new SQLiteFactory().createDatabase("jdbc:sqlite:baseproduccion.db");
-            case "MySQL" -> db = new MySQLFactory().createDatabase("jdbc:mysql://" + mysqlIP + ":3306/construccion1");
+            case "MySQL" -> db = new MySQLFactory().createDatabase("jdbc:mysql://" + mysqlIP + ":3306/Chabes");
             case "PostgreSQL" -> db = new PostgresFactory().createDatabase("jdbc:postgresql://" + postgresIP + ":5432/construccion1");
             default -> {
                 System.out.println("Tipo de BD no reconocido");
@@ -243,7 +290,7 @@ public class MainFX extends Application {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colId.setEditable(false);
 
-        TableColumn<Chistes, String> colIngles = new TableColumn<>("Chiste en Inglés");
+        TableColumn<Chistes, String> colIngles = new TableColumn<>("database.Chiste en Inglés");
         colIngles.setCellValueFactory(new PropertyValueFactory<>("chisteEnIngles"));
         colIngles.setCellFactory(TextFieldTableCell.forTableColumn()); // ✅ Editable
         colIngles.setOnEditCommit(event -> {
@@ -253,7 +300,7 @@ public class MainFX extends Application {
             actualizarCampo(db, chiste.getId(), "chiste_en_ingles", nuevoValor);
         });
 
-        TableColumn<Chistes, String> colEspanol = new TableColumn<>("Chiste en Español");
+        TableColumn<Chistes, String> colEspanol = new TableColumn<>("database.Chiste en Español");
         colEspanol.setCellValueFactory(new PropertyValueFactory<>("chisteEnEspanol"));
         colEspanol.setCellFactory(TextFieldTableCell.forTableColumn()); // ✅ Editable
         colEspanol.setOnEditCommit(event -> {
@@ -321,7 +368,7 @@ public class MainFX extends Application {
 
         Scene scene = new Scene(layout, 700, 500);
         stage.setScene(scene);
-        stage.setTitle("📚 Chistes " + tipoBD);
+        stage.setTitle("📚 database.Chistes " + tipoBD);
         stage.show();
     }
 
@@ -335,7 +382,7 @@ public class MainFX extends Application {
         }
 
         Dialog<Pair<String, String>> dialog = new Dialog<>();
-        dialog.setTitle("Editar Chiste");
+        dialog.setTitle("Editar database.Chiste");
         dialog.setHeaderText("Modificar chiste en inglés y español");
 
         Label lblEn = new Label("Inglés:");

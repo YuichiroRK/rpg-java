@@ -1,4 +1,4 @@
-// 👈 Ajusta esto según el paquete real de tu clase Database
+package database;// 👈 Ajusta esto según el paquete real de tu clase Database
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
@@ -24,11 +24,11 @@ public class MainUtils {
         idCol.setCellValueFactory(data -> data.getValue().idProperty().asObject());
         idCol.setPrefWidth(60);
 
-        TableColumn<Chistes, String> enCol = new TableColumn<>("Chiste en Inglés");
+        TableColumn<Chistes, String> enCol = new TableColumn<>("database.Chiste en Inglés");
         enCol.setCellValueFactory(data -> data.getValue().englishProperty());
         enCol.setPrefWidth(320);
 
-        TableColumn<Chistes, String> esCol = new TableColumn<>("Chiste en Español");
+        TableColumn<Chistes, String> esCol = new TableColumn<>("database.Chiste en Español");
         esCol.setCellValueFactory(data -> data.getValue().spanishProperty());
         esCol.setPrefWidth(320);
 
