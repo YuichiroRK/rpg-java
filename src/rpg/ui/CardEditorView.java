@@ -25,13 +25,20 @@ public class CardEditorView {
         root.setPadding(new Insets(20));
         root.setStyle("-fx-background-color: #2b2b2b;");
 
-        // 📝 Campo de nombre
+        // 📝 Nombre
         Label lblName = new Label("Nombre de la carta:");
         lblName.setStyle("-fx-text-fill: white;");
         TextField txtName = new TextField();
-        txtName.setPromptText("Ej: Shadow Knight");
+        txtName.setPromptText("Ej: Soul Reaver");
 
-        // 🌟 Selección de rareza
+        // 📝 Descripción
+        Label lblDescription = new Label("Descripción:");
+        lblDescription.setStyle("-fx-text-fill: white;");
+        TextArea txtDescription = new TextArea();
+        txtDescription.setPromptText("Ej: Absorbe la esencia del enemigo...");
+        txtDescription.setPrefRowCount(3);
+
+        // 🌟 Rareza
         Label lblRarity = new Label("Rareza:");
         lblRarity.setStyle("-fx-text-fill: white;");
         ComboBox<String> cmbRarity = new ComboBox<>();
@@ -39,9 +46,9 @@ public class CardEditorView {
                 "Common", "Uncommon", "Rare", "Epic", "Legendary",
                 "Mythic", "Ancient", "Divine", "Secret", "Ultimate"
         );
-        cmbRarity.getSelectionModel().selectFirst();
+        cmbRarity.getSelectionModel().select("Common");
 
-        // ⚡ Selector de poder
+        // ⚡ Poder
         Label lblPower = new Label("Poder:");
         lblPower.setStyle("-fx-text-fill: white;");
         Slider sldPower = new Slider(0, 50, 10);
@@ -51,11 +58,11 @@ public class CardEditorView {
         sldPower.setShowTickLabels(true);
         sldPower.setShowTickMarks(true);
         sldPower.setMajorTickUnit(10);
-        sldPower.valueProperty().addListener((obs, oldVal, newVal) ->
-                lblPowerValue.setText(String.valueOf(newVal.intValue()))
+
+        sldPower.valueProperty().addListener((obs, o, n) ->
+                lblPowerValue.setText(String.valueOf(n.intValue()))
         );
 
-        // 📊 Cambiar rango según rareza
         cmbRarity.valueProperty().addListener((obs, oldVal, newVal) -> {
             switch (newVal.toUpperCase()) {
                 case "COMMON" -> sldPower.setMax(50);
@@ -73,38 +80,52 @@ public class CardEditorView {
             lblPowerValue.setText(String.valueOf((int) sldPower.getValue()));
         });
 
-        // 💾 Botón de guardar
+        // 💾 Guardar
         Button btnGuardar = new Button("Guardar carta");
         btnGuardar.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
         btnGuardar.setOnAction(e -> {
             String name = txtName.getText().trim();
-            String rarity = cmbRarity.getValue();
+            String desc = txtDescription.getText().trim();
+            String rarityName = cmbRarity.getValue();
             int power = (int) sldPower.getValue();
 
             if (name.isEmpty()) {
-                showAlert(Alert.AlertType.WARNING, "Falta el nombre de la carta.");
+                showAlert(Alert.AlertType.WARNING, "Falta el nombre.");
+                return;
+            }
+            if (desc.isEmpty()) {
+                showAlert(Alert.AlertType.WARNING, "La descripción no puede estar vacía.");
                 return;
             }
 
             try {
-                Card card = new Card(name, Rarity.valueOf(rarity.toUpperCase()), power);
+                Rarity rarity = Rarity.valueOf(rarityName.toUpperCase());
+
+                // 🔥 Generar ruta de imagen automática
+                String imagePath = "/cards/" + name.replace(" ", "_") + ".png";
+
+                Card card = new Card(name, rarity, power, imagePath);
+
                 repository.saveToCatalog(card);
-                showAlert(Alert.AlertType.INFORMATION, "Carta agregada al catálogo con éxito.");
+
+                showAlert(Alert.AlertType.INFORMATION, "Carta guardada con éxito.");
                 txtName.clear();
+                txtDescription.clear();
+
             } catch (Exception ex) {
-                showAlert(Alert.AlertType.ERROR, "Error al guardar la carta: " + ex.getMessage());
+                showAlert(Alert.AlertType.ERROR, "Error: " + ex.getMessage());
             }
         });
 
         root.getChildren().addAll(
                 lblName, txtName,
+                lblDescription, txtDescription,
                 lblRarity, cmbRarity,
                 lblPower, sldPower, lblPowerValue,
                 btnGuardar
         );
 
-        Scene scene = new Scene(root, 350, 400);
-        stage.setScene(scene);
+        stage.setScene(new Scene(root, 350, 550));
         stage.show();
     }
 

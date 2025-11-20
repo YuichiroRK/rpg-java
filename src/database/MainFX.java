@@ -40,13 +40,13 @@ public class MainFX extends Application {
     @Override
     public void start(Stage stage) {
         // === Pedir IPs al iniciar la app ===
-        TextInputDialog mysqlDialog = new TextInputDialog("172.30.16.154");
+        TextInputDialog mysqlDialog = new TextInputDialog("172.30.16.");
         mysqlDialog.setTitle("Configuración de conexión");
         mysqlDialog.setHeaderText("Ingrese la IP del servidor MySQL");
         mysqlDialog.setContentText("IP MySQL:");
         mysqlIP = mysqlDialog.showAndWait().orElse("");
 
-        TextInputDialog postgresDialog = new TextInputDialog("172.30.16.157");
+        TextInputDialog postgresDialog = new TextInputDialog("172.30.16.");
         postgresDialog.setTitle("Configuración de conexión");
         postgresDialog.setHeaderText("Ingrese la IP del servidor PostgreSQL");
         postgresDialog.setContentText("IP PostgreSQL:");
@@ -74,9 +74,9 @@ public class MainFX extends Application {
         btnConnect.setStyle("-fx-background-color: #00D4FF; -fx-text-fill: black; -fx-font-weight: bold; -fx-background-radius: 10;");
         btnConnect.setOnAction(e -> connectAndInsert());
 
-        Button btnSQLite = crearBotonBD("🟣 database.Chistes SQLite");
-        Button btnMySQL = crearBotonBD("🟠 database.Chistes MySQL");
-        Button btnPostgres = crearBotonBD("🟢 database.Chistes PostgreSQL");
+        Button btnSQLite = crearBotonBD("🟣 ChistesChabes");
+        Button btnMySQL = crearBotonBD("🟠 ChistesChabes");
+        Button btnPostgres = crearBotonBD("🟢 ChistesChabes");
 
         btnSQLite.setOnAction(e -> abrirVentanaChistes("SQLite"));
         btnMySQL.setOnAction(e -> abrirVentanaChistes("MySQL"));
@@ -165,7 +165,7 @@ public class MainFX extends Application {
                 // === MySQL ===
                 crearBaseSiNoExiste("mysql", mysqlIP);
                 Database mysqlDb = new MySQLFactory().createDatabase(
-                        "jdbc:mysql://" + mysqlIP + ":3306/Chabes?user=" + USER + "&password=" + PASS
+                        "jdbc:mysql://" + mysqlIP + ":3306/construccion1?user=" + USER + "&password=" + PASS
                 );
                 createTable(mysqlDb);
                 updateProgress(0.4, 1);
@@ -274,7 +274,7 @@ public class MainFX extends Application {
 
         switch (tipoBD) {
             case "SQLite" -> db = new SQLiteFactory().createDatabase("jdbc:sqlite:baseproduccion.db");
-            case "MySQL" -> db = new MySQLFactory().createDatabase("jdbc:mysql://" + mysqlIP + ":3306/Chabes");
+            case "MySQL" -> db = new MySQLFactory().createDatabase("jdbc:mysql://" + mysqlIP + ":3306/construccion1");
             case "PostgreSQL" -> db = new PostgresFactory().createDatabase("jdbc:postgresql://" + postgresIP + ":5432/construccion1");
             default -> {
                 System.out.println("Tipo de BD no reconocido");

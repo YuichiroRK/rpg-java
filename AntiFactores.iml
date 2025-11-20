@@ -16,15 +16,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Downloads/mysql-connector-java-8.0.28.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
@@ -56,15 +47,6 @@
       <library>
         <CLASSES>
           <root url="jar://$USER_HOME$/Downloads/postgresql-42.7.8.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Downloads/json-20210307.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

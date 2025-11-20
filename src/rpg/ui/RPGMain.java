@@ -8,7 +8,7 @@ public class RPGMain extends Application {
     @Override
     public void start(Stage stage) {
         RNGController controller = new RNGController();
-        Scene scene = new Scene(controller.createView(), 400, 350);
+        Scene scene = new Scene(controller.createView(), 600, 700);
         stage.setScene(scene);
         stage.setTitle("RPG - Sistema de Cartas");
         stage.show();
